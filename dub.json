@@ -1,0 +1,11 @@
+{
+	"name": "pomodoro",
+	"description": "Temporizador Pomodoro rústico para terminal com animações em caracteres e alarme procedural",
+	"authors": ["Leonardo"],
+	"license": "MIT",
+	"targetType": "executable",
+	"targetPath": "bin",
+	"targetName": "pomodoro",
+	"sourcePaths": ["src"],
+	"buildRequirements": ["silenceDeprecations"]
+}

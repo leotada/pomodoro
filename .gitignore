@@ -11,11 +11,14 @@
 *.a
 *.lib
 
-# Executables
+# Executables & Binaries
+bin/
+pomodoro
 *.exe
 
-# DUB
-.dub
+# DUB temporary files
+.dub/
+dub.selections.json
 docs.json
 __dummy.html
 docs/
