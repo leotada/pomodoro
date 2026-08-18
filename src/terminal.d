@@ -7,6 +7,8 @@ import core.sys.posix.signal;
 import std.stdio : stdout;
 static import std.stdio;
 
+enum SIGWINCH = 28; // Window size change signal (POSIX)
+
 enum Key
 {
     None,
@@ -35,6 +37,12 @@ struct TerminalSize
 private termios originalTermios;
 private bool rawModeActive = false;
 private bool inAlternateScreen = false;
+private __gshared bool windowResized = false;
+
+extern(C) void winchHandler(int sig) nothrow @nogc
+{
+    windowResized = true;
+}
 
 extern(C) void signalHandler(int sig) nothrow @nogc
 {
@@ -60,6 +68,7 @@ class Terminal
         // Registra manipuladores de sinal
         signal(SIGINT, &signalHandler);
         signal(SIGTERM, &signalHandler);
+        signal(SIGWINCH, &winchHandler);
     }
 
     ~this()
@@ -152,6 +161,16 @@ class Terminal
             return TerminalSize(ws.ws_col, ws.ws_row);
         }
         return TerminalSize(80, 24);
+    }
+
+    bool hasResized()
+    {
+        if (windowResized)
+        {
+            windowResized = false;
+            return true;
+        }
+        return false;
     }
 
     Key readKey()
