@@ -380,14 +380,14 @@ class Renderer
         
         // Título estático
         buffer.put(RusticColors.GoldBright);
-        string titleStr = asciiMode ? "[*] POMODORO RÚSTICO" : "⏳ POMODORO RÚSTICO";
+        string titleStr = asciiMode ? "[*] POMODORO" : "⏳ POMODORO";
         buffer.put(titleStr);
         
         // Espaçamento e Ciclo
         string cycleStr = formatCycleTokens(pomo);
         string soundStr = sound.isEnabled() ? (asciiMode ? "[SOM: ON]" : "🔊 ON") : (asciiMode ? "[SOM: OFF]" : "🔇 OFF");
 
-        int titleLen = 20;
+        int titleLen = 12;
         int contentLen = titleLen + cast(int)cycleStr.length + cast(int)soundStr.length + 3;
         int pad = max(1, width - 4 - contentLen);
 

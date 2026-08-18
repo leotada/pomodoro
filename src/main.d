@@ -13,7 +13,7 @@ import ui;
 void printHelp(string programName)
 {
     writeln("==========================================================");
-    writeln("  POMODORO TIMER RÚSTICO PARA TERMINAL (EM D)");
+    writeln("  POMODORO TIMER PARA TERMINAL (EM D)");
     writeln("==========================================================");
     writeln("Uso: dub run -- [opções]");
     writeln("  ou ./bin/pomodoro [opções]");

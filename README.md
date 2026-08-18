@@ -1,18 +1,18 @@
-# ⌛ Pomodoro Timer Rústico para Terminal (em D)
+# ⌛ Pomodoro Timer para Terminal (em D)
 
-Um temporizador Pomodoro simples, elegante e de **baixíssimo consumo de memória RAM (< 3 MB)** e CPU, desenvolvido na linguagem **D (Dlang)**.
+Um temporizador Pomodoro simples, elegante e de **baixíssimo consumo de memória RAM (< 3.5 MB)** e CPU, desenvolvido na linguagem **D (Dlang)**.
 
-Apresenta uma estética de terminal rústica/vintage com caracteres texturizados (`░ ▒ ▓ █`), animações acolhedoras de fogueira/ampulheta ASCII, relógio de dígitos grandes e um **sintetizador de alarme procedural harmônico relaxante** (estilo sino tibetano / chime zen / marimba).
+Apresenta uma estética limpa de terminal com caracteres texturizados (`░ ▒ ▓ █`), animações acolhedoras de fogueira/ampulheta ASCII, relógio de dígitos grandes e um **sintetizador de alarme procedural harmônico relaxante** (estilo sino tibetano / chime zen / marimba).
 
 ---
 
 ## 📸 Recursos
 
-- 🪵 **Estética Rústica & Clássica**: Molduras de madeira, relógio de dígitos grandes texturizados e tons quentes (âmbar, terracota, musgo).
+- ⏱️ **Interface Visual no Console**: Relógio com dígitos grandes texturizados, molduras organizadas e tons quentes (âmbar, terracota, musgo).
 - ⏳ **Barra de Progresso Fluida**: Sub-blocos graduais (`░`, `▒`, `▓`, `█`) e indicador dinâmico percentual.
-- 🔥 **Animações em Caracteres**: Fogueira/brasas animadas em ASCII e indicador giratório de ampulheta.
+- 🔥 **Animações em Caracteres**: Fogueira/brasas animadas em ASCII e contador visual de ciclos.
 - 🎵 **Alarme Procedural Relaxante**: Sintetizador matemático embutido gerando ondas senoidais harmônicas com decaimento exponencial (sem arquivos pesados gravados, gerado sob demanda em memória e executado assincronamente).
-- ⚡ **Extremamente Leve**: Consumo típico de ~2 MB de RAM e ~0% de CPU.
+- ⚡ **Extremamente Leve**: Consumo típico de ~3.4 MB de RAM e ~0% de CPU.
 - ⌨️ **Controles Interativos em Tempo Real**: Pausa, pulo de fase, ajuste de minutos e mute instantâneos.
 
 ---
