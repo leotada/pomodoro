@@ -11,7 +11,6 @@ import terminal;
 import sound;
 import i18n;
 
-// Cores ANSI rústicas (Tons quentes de âmbar, madeira, cobre e pergaminho)
 struct RusticColors
 {
     enum Reset       = "\033[0m";
@@ -19,24 +18,20 @@ struct RusticColors
     enum Dim         = "\033[2m";
     enum Italic      = "\033[3m";
 
-    // Tons de madeira e pergaminho
-    enum WoodDark    = "\033[38;5;94m";   // Castanho escuro
-    enum WoodMed     = "\033[38;5;137m";  // Carvalho / canela
-    enum Amber       = "\033[38;5;214m";  // Âmbar dourado
-    enum GoldBright  = "\033[1;38;5;220m";// Ouro brilhante
-    enum Cream       = "\033[38;5;230m";  // Creme suave
+    enum WoodDark    = "\033[38;5;94m";
+    enum WoodMed     = "\033[38;5;137m";
+    enum Amber       = "\033[38;5;214m";
+    enum GoldBright  = "\033[1;38;5;220m";
+    enum Cream       = "\033[38;5;230m";
 
-    // Destaques de fase
-    enum FocusColor  = "\033[1;38;5;208m";// Laranja terracota / fogo
-    enum ShortBrkCol = "\033[1;38;5;108m";// Verde sálvia / musgo
-    enum LongBrkCol  = "\033[1;38;5;73m"; // Azul chá / lago sereno
-    enum PauseCol    = "\033[1;38;5;221m";// Amarelo mostarda
-    enum Muted       = "\033[38;5;242m";  // Cinza pedra rústica
+    enum FocusColor  = "\033[1;38;5;208m";
+    enum ShortBrkCol = "\033[1;38;5;108m";
+    enum LongBrkCol  = "\033[1;38;5;73m";
+    enum PauseCol    = "\033[1;38;5;221m";
+    enum Muted       = "\033[38;5;242m";
 }
 
-// Dígitos grandes estilizados em blocos texturizados (5 linhas de altura)
 private immutable string[5][11] DIGITS_UNICODE = [
-    // 0
     [
         " ████ ",
         "█░  ░█",
@@ -44,7 +39,6 @@ private immutable string[5][11] DIGITS_UNICODE = [
         "█░  ░█",
         " ████ "
     ],
-    // 1
     [
         "  ██  ",
         " ░██  ",
@@ -52,7 +46,6 @@ private immutable string[5][11] DIGITS_UNICODE = [
         "  ██  ",
         " ████ "
     ],
-    // 2
     [
         " ████ ",
         "░   ░█",
@@ -60,7 +53,6 @@ private immutable string[5][11] DIGITS_UNICODE = [
         "█░    ",
         "██████"
     ],
-    // 3
     [
         " ████ ",
         "░   ░█",
@@ -68,7 +60,6 @@ private immutable string[5][11] DIGITS_UNICODE = [
         "░   ░█",
         " ████ "
     ],
-    // 4
     [
         "█░  ░█",
         "█░  ░█",
@@ -76,7 +67,6 @@ private immutable string[5][11] DIGITS_UNICODE = [
         "░   ░█",
         "    ░█"
     ],
-    // 5
     [
         "██████",
         "█░    ",
@@ -84,7 +74,6 @@ private immutable string[5][11] DIGITS_UNICODE = [
         "░   ░█",
         "██████"
     ],
-    // 6
     [
         " ████ ",
         "█░    ",
@@ -92,7 +81,6 @@ private immutable string[5][11] DIGITS_UNICODE = [
         "█░  ░█",
         " ████ "
     ],
-    // 7
     [
         "██████",
         "░   ░█",
@@ -100,7 +88,6 @@ private immutable string[5][11] DIGITS_UNICODE = [
         "  ░█  ",
         "  ██  "
     ],
-    // 8
     [
         " ████ ",
         "█░  ░█",
@@ -108,7 +95,6 @@ private immutable string[5][11] DIGITS_UNICODE = [
         "█░  ░█",
         " ████ "
     ],
-    // 9
     [
         " ████ ",
         "█░  ░█",
@@ -116,7 +102,6 @@ private immutable string[5][11] DIGITS_UNICODE = [
         "░   ░█",
         " ████ "
     ],
-    // : (Separador)
     [
         "      ",
         "  ▓▓  ",
@@ -126,7 +111,6 @@ private immutable string[5][11] DIGITS_UNICODE = [
     ]
 ];
 
-// Fallback ASCII para compatibilidade total
 private immutable string[5][11] DIGITS_ASCII = [
     [" ### ", "#   #", "#   #", "#   #", " ### "],
     ["  #  ", " ##  ", "  #  ", "  #  ", " ### "],
@@ -141,7 +125,6 @@ private immutable string[5][11] DIGITS_ASCII = [
     ["     ", "  #  ", "     ", "  #  ", "     "]
 ];
 
-// Animação de Fogueira / Brasas Rústicas (8 frames)
 private immutable string[4][8] FIRE_FRAMES = [
     [
         "   ( . )   ",
@@ -193,13 +176,10 @@ private immutable string[4][8] FIRE_FRAMES = [
     ]
 ];
 
-// Símbolos de ampulheta giratória
 private immutable string[4] HOURGLASS_FRAMES = ["⏳", "◴", "⌛", "◶"];
 private immutable string[4] HOURGLASS_ASCII  = ["\\", "|", "/", "-"];
 
-// =============================================================================
 // Helper para cálculo exato de largura visual no terminal (Unicode / Emojis / ANSI)
-// =============================================================================
 import std.utf : decode;
 
 extern(C) int wcwidth(dchar c) nothrow @nogc;
@@ -210,7 +190,6 @@ size_t visibleWidth(string s)
     size_t i = 0;
     while (i < s.length)
     {
-        // Ignora sequências de escape ANSI (\033[...m, etc.)
         if (s[i] == '\033' && i + 1 < s.length && s[i + 1] == '[')
         {
             i += 2;
@@ -273,7 +252,6 @@ class Renderer
     {
         buffer = appender!string();
 
-        // Se o tamanho da janela mudou, limpa a tela inteira para evitar caracteres fantasmas
         if (termSize.columns != lastSize.columns || termSize.rows != lastSize.rows)
         {
             buffer.put("\033[2J\033[H");
@@ -293,7 +271,6 @@ class Renderer
         PomodoroMode mode = pomo.getMode();
         bool paused = pomo.isPaused();
 
-        // Cores e descrições da fase
         string phaseColor;
         string phaseName;
         final switch (mode)
@@ -315,7 +292,6 @@ class Renderer
         int cols = termSize.columns;
         int rows = termSize.rows;
 
-        // Seleciona layout adaptativo de acordo com o espaço disponível no terminal
         if (cols < 36 || rows < 6)
         {
             renderUltraMini(pomo, sound, minutes, seconds, progress, phaseName, phaseColor, paused, cols);
@@ -333,14 +309,10 @@ class Renderer
             renderFull(pomo, sound, minutes, seconds, progress, phaseName, phaseColor, paused, cols, rows);
         }
 
-        // Escreve todo o buffer atômico para evitar flicker
         write(buffer.data);
         stdout.flush();
     }
 
-    // =========================================================================
-    // LAYOUT COMPLETO (Desktop / Janelas Padrão: cols >= 58 e rows >= 20)
-    // =========================================================================
     private void renderFull(Pomodoro pomo, SoundEngine sound, long minutes, long seconds, float progress, string phaseName, string phaseColor, bool paused, int cols, int rows)
     {
         int width = min(78, cols - 4);
@@ -367,12 +339,9 @@ class Renderer
         renderFooter(width);
         renderBoxBottom(width);
 
-        buffer.put("\033[J"); // Limpa qualquer resíduo vertical abaixo
+        buffer.put("\033[J");
     }
 
-    // =========================================================================
-    // LAYOUT COMPACTO (Janelas Médias: cols >= 48 e rows >= 14)
-    // =========================================================================
     private void renderCompact(Pomodoro pomo, SoundEngine sound, long minutes, long seconds, float progress, string phaseName, string phaseColor, bool paused, int cols, int rows)
     {
         int width = min(66, cols - 2);
@@ -397,9 +366,6 @@ class Renderer
         buffer.put("\033[J");
     }
 
-    // =========================================================================
-    // LAYOUT MINI (Split panes / Janelas Pequenas: cols >= 36 e rows >= 6)
-    // =========================================================================
     private void renderMini(Pomodoro pomo, SoundEngine sound, long minutes, long seconds, float progress, string phaseName, string phaseColor, bool paused, int cols, int rows)
     {
         int width = min(54, cols - 2);
@@ -421,9 +387,6 @@ class Renderer
         buffer.put("\033[J");
     }
 
-    // =========================================================================
-    // LAYOUT ULTRA-MINI (Extremamente Pequeno / Terminal estreito: cols < 36 ou rows < 6)
-    // =========================================================================
     private void renderUltraMini(Pomodoro pomo, SoundEngine sound, long minutes, long seconds, float progress, string phaseName, string phaseColor, bool paused, int cols)
     {
         leftMargin = 0;
@@ -454,10 +417,6 @@ class Renderer
 
         buffer.put("\033[J");
     }
-
-    // =========================================================================
-    // COMPONENTES DE RENDERIZAÇÃO
-    // =========================================================================
 
     private void renderBoxTop(int width)
     {
@@ -538,19 +497,17 @@ class Renderer
         buffer.put(RusticColors.WoodDark);
         buffer.put(asciiMode ? "| " : "║ ");
         
-        // Título
         buffer.put(RusticColors.GoldBright);
         string titleStr = asciiMode ? "[*] POMODORO" : "◈ POMODORO";
         buffer.put(titleStr);
         
-        // Ciclos e Som
         string cycleStr = formatCycleTokens(pomo, width);
         string soundStr = sound.isEnabled() ? tr.soundOn : tr.soundOff;
 
         int titleVis = cast(int)visibleWidth(titleStr);
         int cycleVis = cast(int)visibleWidth(cycleStr);
         int soundVis = cast(int)visibleWidth(soundStr);
-        int contentVis = titleVis + cycleVis + soundVis + 2; // 2 espaços entre cycle e sound
+        int contentVis = titleVis + cycleVis + soundVis + 2;
         int pad = max(1, (width - 4) - contentVis);
 
         foreach (_; 0 .. pad) buffer.put(" ");
@@ -640,13 +597,13 @@ class Renderer
     {
         int d1 = cast(int)(minutes / 10);
         int d2 = cast(int)(minutes % 10);
-        int d3 = 10; // :
+        int d3 = 10;
         int d4 = cast(int)(seconds / 10);
         int d5 = cast(int)(seconds % 10);
 
         auto digits = asciiMode ? DIGITS_ASCII : DIGITS_UNICODE;
         int digitWidth = asciiMode ? 5 : 6;
-        int totalClockWidth = digitWidth * 5 + 4; // 5 digitos + 4 espacos
+        int totalClockWidth = digitWidth * 5 + 4;
 
         int innerSpace = width - 2;
         int leftPad = max(1, (innerSpace - totalClockWidth) / 2);
@@ -693,7 +650,7 @@ class Renderer
         formattedWrite(app, "%02d : %02d", minutes, seconds);
         if (paused) app.put(tr.statusPausedMini);
 
-        int clockVis = cast(int)visibleWidth(app.data) + 4; // "[ " e " ]"
+        int clockVis = cast(int)visibleWidth(app.data) + 4;
         int innerSpace = width - 2;
         int leftPad = max(1, (innerSpace - clockVis) / 2);
         int rightPad = max(0, innerSpace - clockVis - leftPad);
@@ -734,7 +691,7 @@ class Renderer
             badgeColor = color;
         }
 
-        int badgeVis = cast(int)visibleWidth(label) + 4; // "[ " e " ]"
+        int badgeVis = cast(int)visibleWidth(label) + 4;
         int innerSpace = width - 2;
         int leftPad = max(1, (innerSpace - badgeVis) / 2);
         int rightPad = max(0, innerSpace - badgeVis - leftPad);
@@ -810,7 +767,6 @@ class Renderer
         formattedWrite(buffer, " %3d%%", percent);
         buffer.put(RusticColors.Reset);
 
-        // 3 (left "║  ") + 1 (open) + barWidth + 1 (close) + 5 (" 100%") + pad + 1 (right "║") = width
         int used = 3 + 1 + barWidth + 1 + 5 + 1;
         int remainingPad = max(0, width - used);
         foreach (_; 0 .. remainingPad) buffer.put(" ");
@@ -836,7 +792,6 @@ class Renderer
             buffer.put((i % 2 == 0) ? "~" : " ");
         }
 
-        // 3 (left "║  ") + (barWidth + 2) + pad + 1 (right "║") = width
         int used = 3 + (barWidth + 2) + 1;
         int remainingPad = max(0, width - used);
         foreach (_; 0 .. remainingPad) buffer.put(" ");
@@ -873,7 +828,6 @@ class Renderer
         buffer.put(RusticColors.Reset);
 
         int textVis = cast(int)visibleWidth(app.data);
-        // 3 (left "║  ") + textVis + pad + 1 (right "║") = width
         int pad = max(0, width - (3 + textVis + 1));
         foreach (_; 0 .. pad) buffer.put(" ");
 
@@ -896,7 +850,6 @@ class Renderer
             buffer.put(RusticColors.WoodDark);
             buffer.put(asciiMode ? "|  " : "║  ");
 
-            // Fogueira animada
             buffer.put(RusticColors.Amber);
             buffer.put(RusticColors.Bold);
             buffer.put(fireFrame[row]);
@@ -904,7 +857,7 @@ class Renderer
 
             buffer.put("  ");
 
-            int fireVis = cast(int)visibleWidth(fireFrame[row]); // 11
+            int fireVis = cast(int)visibleWidth(fireFrame[row]);
             int textVis = 0;
 
             if (row == 1)
@@ -924,7 +877,6 @@ class Renderer
                 textVis = cast(int)visibleWidth(statusMsg);
             }
 
-            // 3 (left "║  ") + fireVis + 2 ("  ") + textVis + pad + 1 (right "║") = width
             int pad = max(0, width - (3 + fireVis + 2 + textVis + 1));
             foreach (_; 0 .. pad) buffer.put(" ");
 
@@ -975,7 +927,6 @@ class Renderer
             totalVis += visibleWidth(s);
         }
 
-        // 2 (left "║ ") + totalVis + pad + 2 (right " ║") = width
         int pad = max(0, width - (2 + totalVis + 2));
         foreach (_; 0 .. pad) buffer.put(" ");
 
@@ -1012,7 +963,6 @@ class Renderer
             totalVis += visibleWidth(s);
         }
 
-        // 2 (left "║ ") + totalVis + pad + 2 (right " ║") = width
         int pad = max(0, width - (2 + totalVis + 2));
         foreach (_; 0 .. pad) buffer.put(" ");
 
@@ -1062,28 +1012,24 @@ unittest
                 auto r = new Renderer(ascii, lang);
                 auto pomo = (lang == Language.PT) ? pomoPT : pomoEN;
 
-                // Test unpaused
                 r.render(pomo, sound, bp);
                 assert(r.buffer.data.length > 0);
 
-                // Test paused
                 pomo.togglePause();
                 r.render(pomo, sound, bp);
                 assert(r.buffer.data.length > 0);
-                pomo.togglePause(); // revert
+                pomo.togglePause();
 
-                // Test short break
                 pomo.nextPhase();
                 r.render(pomo, sound, bp);
                 assert(r.buffer.data.length > 0);
 
-                // Test long break
                 pomo.nextPhase();
                 pomo.nextPhase();
                 pomo.nextPhase();
                 r.render(pomo, sound, bp);
                 assert(r.buffer.data.length > 0);
-                pomo.nextPhase(); // back to work
+                pomo.nextPhase();
             }
         }
     }

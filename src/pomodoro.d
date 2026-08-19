@@ -62,7 +62,6 @@ class Pomodoro
         timeRemaining = totalDuration;
     }
 
-    /// Atualiza o timer com base no tempo monotônico. Retorna true se a fase acabou agora.
     bool tick()
     {
         MonoTime now = MonoTime.currTime;
@@ -83,7 +82,6 @@ class Pomodoro
         }
     }
 
-    /// Avança para a próxima fase do ciclo
     void nextPhase()
     {
         final switch (mode)
@@ -115,7 +113,6 @@ class Pomodoro
         lastUpdateTime = MonoTime.currTime;
     }
 
-    /// Reinicia a fase atual
     void resetCurrent()
     {
         setupCurrentPhase();
@@ -151,7 +148,6 @@ class Pomodoro
         lastUpdateTime = MonoTime.currTime;
     }
 
-    // Getters
     PomodoroMode getMode() const { return mode; }
     int getCurrentCycle() const { return currentCycle; }
     int getCompletedCycles() const { return completedCycles; }
@@ -184,3 +180,105 @@ class Pomodoro
         return config;
     }
 }
+
+unittest
+{
+    // TC-STATE-01: Initial state validation
+    PomodoroConfig cfg;
+    cfg.workMinutes = 25.0f;
+    cfg.shortBreakMinutes = 5.0f;
+    cfg.longBreakMinutes = 15.0f;
+    cfg.cyclesBeforeLongBreak = 4;
+    cfg.lang = Language.PT;
+
+    auto p = new Pomodoro(cfg);
+    assert(p.getMode() == PomodoroMode.Work);
+    assert(p.getCurrentCycle() == 1);
+    assert(p.getCompletedCycles() == 0);
+    assert(p.getMaxCycles() == 4);
+    assert(!p.isPaused());
+    assert(p.getRemainingSeconds() >= 24 * 60 && p.getRemainingSeconds() <= 25 * 60);
+    assert(p.getElapsedSeconds() == 0);
+    assert(p.getProgress() == 0.0f);
+    assert(p.getConfig().workMinutes == 25.0f);
+
+    // TC-STATE-02: Pause and resume toggle
+    p.togglePause();
+    assert(p.isPaused());
+    bool tickedWhilePaused = p.tick();
+    assert(!tickedWhilePaused);
+    p.togglePause();
+    assert(!p.isPaused());
+
+    // TC-STATE-03: State transitions through cycles
+    // Cycle 1: Work -> Short Break
+    p.nextPhase();
+    assert(p.getMode() == PomodoroMode.ShortBreak);
+    assert(p.getCurrentCycle() == 1);
+    assert(p.getCompletedCycles() == 1);
+    assert(p.getRemainingSeconds() >= 4 * 60 && p.getRemainingSeconds() <= 5 * 60);
+
+    // Cycle 1 Short Break -> Cycle 2 Work
+    p.nextPhase();
+    assert(p.getMode() == PomodoroMode.Work);
+    assert(p.getCurrentCycle() == 2);
+    assert(p.getCompletedCycles() == 1);
+
+    // Cycle 2 Work -> Cycle 2 Short Break
+    p.nextPhase();
+    assert(p.getMode() == PomodoroMode.ShortBreak);
+    assert(p.getCurrentCycle() == 2);
+    assert(p.getCompletedCycles() == 2);
+
+    // Cycle 2 Short Break -> Cycle 3 Work
+    p.nextPhase();
+    assert(p.getMode() == PomodoroMode.Work);
+    assert(p.getCurrentCycle() == 3);
+    assert(p.getCompletedCycles() == 2);
+
+    // Cycle 3 Work -> Cycle 3 Short Break
+    p.nextPhase();
+    assert(p.getMode() == PomodoroMode.ShortBreak);
+    assert(p.getCurrentCycle() == 3);
+    assert(p.getCompletedCycles() == 3);
+
+    // Cycle 3 Short Break -> Cycle 4 Work
+    p.nextPhase();
+    assert(p.getMode() == PomodoroMode.Work);
+    assert(p.getCurrentCycle() == 4);
+    assert(p.getCompletedCycles() == 3);
+
+    // Cycle 4 Work -> Long Break (since currentCycle >= cyclesBeforeLongBreak)
+    p.nextPhase();
+    assert(p.getMode() == PomodoroMode.LongBreak);
+    assert(p.getCurrentCycle() == 4);
+    assert(p.getCompletedCycles() == 4);
+    assert(p.getRemainingSeconds() >= 14 * 60 && p.getRemainingSeconds() <= 15 * 60);
+
+    // Long Break -> Cycle 1 Work
+    p.nextPhase();
+    assert(p.getMode() == PomodoroMode.Work);
+    assert(p.getCurrentCycle() == 1);
+    assert(p.getCompletedCycles() == 4);
+
+    // TC-STATE-04: Reset current phase
+    p.addMinutes(-10);
+    p.resetCurrent();
+    assert(p.getRemainingSeconds() >= 24 * 60 && p.getRemainingSeconds() <= 25 * 60);
+
+    // TC-STATE-05: addMinutes adjustments and boundary floor
+    long curRem = p.getRemainingSeconds();
+    p.addMinutes(5);
+    assert(p.getRemainingSeconds() >= curRem + 4 * 60);
+    p.addMinutes(-10);
+    assert(p.getRemainingSeconds() >= curRem - 6 * 60);
+    p.addMinutes(-30); // Excessive reduction should floor at 10 seconds
+    assert(p.getRemainingSeconds() == 10);
+    p.addMinutes(-5); // Negative delta when <= 1 min floors at 10s
+    assert(p.getRemainingSeconds() == 10);
+
+    // TC-STATE-06: Progress calculation
+    assert(p.getProgress() >= 0.0f && p.getProgress() <= 1.0f);
+}
+
+

@@ -10,9 +10,9 @@ import std.conv : to;
 
 enum SoundType
 {
-    WorkFinished,    // Chime zen arpejado relaxante
-    BreakFinished,   // Sino suave de retorno ao foco
-    Tick             // Toque sutil de madeira
+    WorkFinished,
+    BreakFinished,
+    Tick
 }
 
 /// Gera cabeçalho WAV de 44 bytes para dados PCM 16-bit Stereo (2 canais)
@@ -28,17 +28,15 @@ ubyte[] createStereoWav(uint sampleRate, float[] left, float[] right)
 
     ubyte[] wav = new ubyte[44 + dataSize];
 
-    // RIFF Chunk
     wav[0..4] = cast(ubyte[])"RIFF";
     wav[4..8] = [cast(ubyte)(chunkSize & 0xFF), cast(ubyte)((chunkSize >> 8) & 0xFF),
                  cast(ubyte)((chunkSize >> 16) & 0xFF), cast(ubyte)((chunkSize >> 24) & 0xFF)];
     wav[8..12] = cast(ubyte[])"WAVE";
 
-    // "fmt " subchunk
     wav[12..16] = cast(ubyte[])"fmt ";
-    wav[16..20] = [16, 0, 0, 0];    // Subchunk1Size = 16 para PCM
-    wav[20..22] = [1, 0];           // AudioFormat = 1 (PCM)
-    wav[22..24] = [2, 0];           // NumChannels = 2 (Stereo)
+    wav[16..20] = [16, 0, 0, 0];
+    wav[20..22] = [1, 0];
+    wav[22..24] = [2, 0];
     wav[24..28] = [cast(ubyte)(sampleRate & 0xFF), cast(ubyte)((sampleRate >> 8) & 0xFF),
                    cast(ubyte)((sampleRate >> 16) & 0xFF), cast(ubyte)((sampleRate >> 24) & 0xFF)];
     wav[28..32] = [cast(ubyte)(byteRate & 0xFF), cast(ubyte)((byteRate >> 8) & 0xFF),
@@ -46,7 +44,6 @@ ubyte[] createStereoWav(uint sampleRate, float[] left, float[] right)
     wav[32..34] = [cast(ubyte)(blockAlign & 0xFF), cast(ubyte)((blockAlign >> 8) & 0xFF)];
     wav[34..36] = [cast(ubyte)(bitsPerSample & 0xFF), cast(ubyte)((bitsPerSample >> 8) & 0xFF)];
 
-    // "data" subchunk
     wav[36..40] = cast(ubyte[])"data";
     wav[40..44] = [cast(ubyte)(dataSize & 0xFF), cast(ubyte)((dataSize >> 8) & 0xFF),
                    cast(ubyte)((dataSize >> 16) & 0xFF), cast(ubyte)((dataSize >> 24) & 0xFF)];
@@ -81,13 +78,12 @@ void addChimeTone(float[] left, float[] right, uint sampleRate, float startTime,
     uint startIdx = cast(uint)(startTime * sampleRate);
     uint totalSamples = cast(uint)(duration * sampleRate);
 
-    // Harmônicos rústicos de sino de vento / tigela tibetana
     static struct Partial { float ratio; float amp; float decayRate; }
     static immutable Partial[4] partials = [
-        Partial(1.00f, 1.00f, 1.8f),  // Fundamental
-        Partial(2.76f, 0.35f, 3.2f),  // Primeiro harmônico de campânula
-        Partial(5.40f, 0.15f, 5.0f),  // Segundo harmônico
-        Partial(8.93f, 0.08f, 7.5f)   // Brilho suave
+        Partial(1.00f, 1.00f, 1.8f),
+        Partial(2.76f, 0.35f, 3.2f),
+        Partial(5.40f, 0.15f, 5.0f),
+        Partial(8.93f, 0.08f, 7.5f)
     ];
 
     float panLeft = 1.0f - pan;
@@ -101,7 +97,6 @@ void addChimeTone(float[] left, float[] right, uint sampleRate, float startTime,
         float t = cast(float)i / sampleRate;
         float sample = 0.0f;
 
-        // Attack suave (4ms) para evitar estalos de início
         float attack = (t < 0.004f) ? (t / 0.004f) : 1.0f;
 
         foreach (p; partials)
@@ -154,8 +149,6 @@ ubyte[] generateProceduralSound(SoundType type)
     final switch (type)
     {
         case SoundType.WorkFinished:
-            // Acorde Zen Relaxante Arpejado (Dó Maior / Mi Pentatônica com espacialização estéreo)
-            // C5 (523Hz) -> E5 (659Hz) -> G5 (784Hz) -> B5 (988Hz) -> C6 (1047Hz)
             duration = 3.2f;
             size_t n = cast(size_t)(duration * sampleRate);
             left = new float[n];
@@ -163,15 +156,14 @@ ubyte[] generateProceduralSound(SoundType type)
             left[] = 0.0f;
             right[] = 0.0f;
 
-            addChimeTone(left, right, sampleRate, 0.00f, 2.8f, 523.25f, 0.40f, 0.70f); // C5
-            addChimeTone(left, right, sampleRate, 0.18f, 2.7f, 659.25f, 0.60f, 0.70f); // E5
-            addChimeTone(left, right, sampleRate, 0.36f, 2.6f, 783.99f, 0.35f, 0.70f); // G5
-            addChimeTone(left, right, sampleRate, 0.54f, 2.5f, 987.77f, 0.65f, 0.75f); // B5
-            addChimeTone(left, right, sampleRate, 0.72f, 2.6f, 1046.50f, 0.50f, 0.80f); // C6
+            addChimeTone(left, right, sampleRate, 0.00f, 2.8f, 523.25f, 0.40f, 0.70f);
+            addChimeTone(left, right, sampleRate, 0.18f, 2.7f, 659.25f, 0.60f, 0.70f);
+            addChimeTone(left, right, sampleRate, 0.36f, 2.6f, 783.99f, 0.35f, 0.70f);
+            addChimeTone(left, right, sampleRate, 0.54f, 2.5f, 987.77f, 0.65f, 0.75f);
+            addChimeTone(left, right, sampleRate, 0.72f, 2.6f, 1046.50f, 0.50f, 0.80f);
             break;
 
         case SoundType.BreakFinished:
-            // Sino duplo calmo e reconfortante de retorno ao foco: Lá4 (440Hz) -> Mi5 (659Hz)
             duration = 2.6f;
             size_t n = cast(size_t)(duration * sampleRate);
             left = new float[n];
@@ -179,12 +171,11 @@ ubyte[] generateProceduralSound(SoundType type)
             left[] = 0.0f;
             right[] = 0.0f;
 
-            addChimeTone(left, right, sampleRate, 0.00f, 2.4f, 440.00f, 0.45f, 0.75f); // A4
-            addChimeTone(left, right, sampleRate, 0.25f, 2.3f, 659.25f, 0.55f, 0.80f); // E5
+            addChimeTone(left, right, sampleRate, 0.00f, 2.4f, 440.00f, 0.45f, 0.75f);
+            addChimeTone(left, right, sampleRate, 0.25f, 2.3f, 659.25f, 0.55f, 0.80f);
             break;
 
         case SoundType.Tick:
-            // Toque sutil e rápido de madeira (35ms)
             duration = 0.05f;
             size_t n = cast(size_t)(duration * sampleRate);
             left = new float[n];
@@ -200,7 +191,6 @@ ubyte[] generateProceduralSound(SoundType type)
     return createStereoWav(sampleRate, left, right);
 }
 
-/// Gerenciador de Áudio Procedural
 class SoundEngine
 {
     private bool enabled = true;
@@ -225,7 +215,6 @@ class SoundEngine
         this.enabled = !this.enabled;
     }
 
-    /// Toca um som de forma assíncrona em uma thread secundária sem travar a UI
     void play(SoundType type)
     {
         if (!enabled) return;
@@ -238,14 +227,12 @@ class SoundEngine
             }
             catch (Exception)
             {
-                // Fallback silencioso / não trava execução
             }
         });
         worker.isDaemon = true;
         worker.start();
     }
 
-    /// Toca sincronicamente (usado para testes do alarme)
     void playSync(SoundType type)
     {
         if (!enabled) return;
@@ -273,7 +260,6 @@ class SoundEngine
             unlink(tmpFile.toStringz);
         }
 
-        // 1. Tenta PipeWire pw-play com o arquivo em memória RAM
         try
         {
             auto pid = spawnProcess(["pw-play", tmpFile]);
@@ -282,7 +268,6 @@ class SoundEngine
         }
         catch (Exception) {}
 
-        // 2. Tenta PulseAudio paplay
         try
         {
             auto pid = spawnProcess(["paplay", tmpFile]);
@@ -291,7 +276,6 @@ class SoundEngine
         }
         catch (Exception) {}
 
-        // 3. Tenta ffplay (modo silencioso de áudio)
         try
         {
             auto pid = spawnProcess(["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", tmpFile]);
@@ -306,3 +290,59 @@ class SoundEngine
         stdout.flush();
     }
 }
+
+unittest
+{
+    // TC-SOUND-01: Stereo WAV Header Generation
+    float[] dummyLeft = new float[100];
+    float[] dummyRight = new float[100];
+    dummyLeft[] = 0.5f;
+    dummyRight[] = -0.5f;
+
+    ubyte[] wav = createStereoWav(44100, dummyLeft, dummyRight);
+    assert(wav.length == 44 + 100 * 4);
+    assert(cast(string)wav[0..4] == "RIFF");
+    assert(cast(string)wav[8..12] == "WAVE");
+    assert(cast(string)wav[12..16] == "fmt ");
+    assert(cast(string)wav[36..40] == "data");
+
+    // Audio format = 1 (PCM), channels = 2, bits = 16
+    assert(wav[20] == 1 && wav[21] == 0);
+    assert(wav[22] == 2 && wav[23] == 0);
+    assert(wav[34] == 16 && wav[35] == 0);
+
+    // TC-SOUND-02: Procedural Sound Generation for all SoundTypes
+    ubyte[] workWav = generateProceduralSound(SoundType.WorkFinished);
+    assert(workWav.length > 44);
+    assert(cast(string)workWav[0..4] == "RIFF");
+    assert(cast(string)workWav[8..12] == "WAVE");
+
+    ubyte[] breakWav = generateProceduralSound(SoundType.BreakFinished);
+    assert(breakWav.length > 44);
+    assert(cast(string)breakWav[0..4] == "RIFF");
+
+    ubyte[] tickWav = generateProceduralSound(SoundType.Tick);
+    assert(tickWav.length > 44);
+    assert(cast(string)tickWav[0..4] == "RIFF");
+
+    // TC-SOUND-03: Audio Normalization
+    float[] leftNorm = [0.1f, 0.5f, -0.2f];
+    float[] rightNorm = [0.2f, -0.4f, 0.3f];
+    normalizeAudio(leftNorm, rightNorm, 0.88f);
+    float maxVal = 0.0f;
+    foreach (s; leftNorm) { float a = s >= 0 ? s : -s; if (a > maxVal) maxVal = a; }
+    foreach (s; rightNorm) { float a = s >= 0 ? s : -s; if (a > maxVal) maxVal = a; }
+    import std.math : approxEqual;
+    assert(approxEqual(maxVal, 0.88f, 0.01f));
+
+    // TC-SOUND-04: SoundEngine State Management
+    auto engine = new SoundEngine(true);
+    assert(engine.isEnabled());
+    engine.toggle();
+    assert(!engine.isEnabled());
+    engine.setEnabled(true);
+    assert(engine.isEnabled());
+    auto engineDisabled = new SoundEngine(false);
+    assert(!engineDisabled.isEnabled());
+}
+
