@@ -4,10 +4,12 @@ import std.array : Appender, appender;
 import std.format : formattedWrite;
 import std.stdio : write, stdout;
 import std.algorithm : max, min;
+import std.string : indexOf;
 
 import pomodoro;
 import terminal;
 import sound;
+import i18n;
 
 // Cores ANSI rústicas (Tons quentes de âmbar, madeira, cobre e pergaminho)
 struct RusticColors
@@ -236,14 +238,18 @@ size_t visibleWidth(string s)
 class Renderer
 {
     private bool asciiMode;
+    private Language lang;
+    private const(TranslationStrings)* tr;
     private int animFrame = 0;
     private TerminalSize lastSize;
     private int leftMargin = 0;
     private Appender!string buffer;
 
-    this(bool asciiMode = false)
+    this(bool asciiMode = false, Language lang = Language.PT)
     {
         this.asciiMode = asciiMode;
+        this.lang = lang;
+        this.tr = getTranslations(lang);
         this.buffer = appender!string();
         this.lastSize = TerminalSize(0, 0);
     }
@@ -294,15 +300,15 @@ class Renderer
         {
             case PomodoroMode.Work:
                 phaseColor = RusticColors.FocusColor;
-                phaseName  = "TRABALHO / FOCO";
+                phaseName  = tr.phaseWork;
                 break;
             case PomodoroMode.ShortBreak:
                 phaseColor = RusticColors.ShortBrkCol;
-                phaseName  = "PAUSA CURTA";
+                phaseName  = tr.phaseShortBreak;
                 break;
             case PomodoroMode.LongBreak:
                 phaseColor = RusticColors.LongBrkCol;
-                phaseName  = "PAUSA LONGA";
+                phaseName  = tr.phaseLongBreak;
                 break;
         }
 
@@ -431,7 +437,7 @@ class Renderer
         if (paused)
         {
             buffer.put(RusticColors.PauseCol);
-            buffer.put(" [PAUSA]");
+            buffer.put(tr.statusPausedUltra);
         }
         else
         {
@@ -442,7 +448,7 @@ class Renderer
         endLine();
 
         buffer.put(RusticColors.Muted);
-        buffer.put("[Espaço]Pausa [Q]Sair");
+        buffer.put(tr.shortcutsUltra);
         buffer.put(RusticColors.Reset);
         endLine();
 
@@ -539,7 +545,7 @@ class Renderer
         
         // Ciclos e Som
         string cycleStr = formatCycleTokens(pomo, width);
-        string soundStr = sound.isEnabled() ? "[SOM: ON]" : "[SOM: OFF]";
+        string soundStr = sound.isEnabled() ? tr.soundOn : tr.soundOff;
 
         int titleVis = cast(int)visibleWidth(titleStr);
         int cycleVis = cast(int)visibleWidth(cycleStr);
@@ -578,7 +584,7 @@ class Renderer
 
         auto app = appender!string();
         formattedWrite(app, "%d/%d", pomo.getCurrentCycle(), pomo.getMaxCycles());
-        string soundStr = sound.isEnabled() ? "[ON]" : "[OFF]";
+        string soundStr = sound.isEnabled() ? tr.soundOnShort : tr.soundOffShort;
 
         int titleVis = cast(int)(visibleWidth(iconStr) + visibleWidth(shortPhase));
         int rightVis = cast(int)(visibleWidth(app.data) + 1 + visibleWidth(soundStr));
@@ -605,7 +611,7 @@ class Renderer
         
         if (width >= 56)
         {
-            app.put("Ciclo: [ ");
+            app.put(tr.cycleLabelFull);
             foreach (i; 1 .. maxC + 1)
             {
                 if (i < cur)
@@ -625,7 +631,7 @@ class Renderer
         }
         else
         {
-            formattedWrite(app, "Ciclo %d/%d", cur, maxC);
+            formattedWrite(app, tr.cycleLabelShort, cur, maxC);
         }
         return app.data;
     }
@@ -685,7 +691,7 @@ class Renderer
 
         auto app = appender!string();
         formattedWrite(app, "%02d : %02d", minutes, seconds);
-        if (paused) app.put(" (PAUSADO)");
+        if (paused) app.put(tr.statusPausedMini);
 
         int clockVis = cast(int)visibleWidth(app.data) + 4; // "[ " e " ]"
         int innerSpace = width - 2;
@@ -719,12 +725,12 @@ class Renderer
         string badgeColor;
         if (paused)
         {
-            label = (width >= 56) ? "PAUSADO - [Espaço para Retomar]" : "PAUSADO";
+            label = (width >= 56) ? tr.statusPausedFull : tr.statusPausedShort;
             badgeColor = RusticColors.PauseCol;
         }
         else
         {
-            label = (width >= 56) ? "FASE ATUAL: " ~ phaseName : phaseName;
+            label = (width >= 56) ? tr.statusActivePrefix ~ phaseName : phaseName;
             badgeColor = color;
         }
 
@@ -855,11 +861,11 @@ class Renderer
         auto app = appender!string();
         if (width >= 56)
         {
-            formattedWrite(app, "Decorrido: %02d:%02d  │  Pomodoros Concluídos: %d", elMin, elRemainder, totalSessions);
+            formattedWrite(app, tr.statsElapsedFull, elMin, elRemainder, totalSessions);
         }
         else
         {
-            formattedWrite(app, "Decorrido: %02d:%02d  │  Feitos: %d", elMin, elRemainder, totalSessions);
+            formattedWrite(app, tr.statsElapsedShort, elMin, elRemainder, totalSessions);
         }
 
         buffer.put(RusticColors.Cream);
@@ -882,13 +888,7 @@ class Renderer
         int frameIdx = (animFrame / 2) % 8;
         auto fireFrame = FIRE_FRAMES[frameIdx];
 
-        string[4] sideQuotes = [
-            "\"O tempo flui como a madeira que se esculpe.\"",
-            "\"Foco no presente, passo a passo.\"",
-            "\"Mente calma, trabalho constante.\"",
-            "\"Aqueça sua concentração na forja do foco.\""
-        ];
-        string currentQuote = sideQuotes[(animFrame / 16) % 4];
+        string currentQuote = tr.sideQuotes[(animFrame / 16) % tr.sideQuotes.length];
 
         foreach (row; 0 .. 4)
         {
@@ -917,7 +917,7 @@ class Renderer
             }
             else if (row == 2)
             {
-                string statusMsg = pomo.isPaused() ? "Timer em pausa. Respire fundo." : "Forjando progresso em seu dia...";
+                string statusMsg = pomo.isPaused() ? tr.quotePaused : tr.quoteRunning;
                 buffer.put(RusticColors.Muted);
                 buffer.put(statusMsg);
                 buffer.put(RusticColors.Reset);
@@ -941,37 +941,18 @@ class Renderer
         buffer.put(RusticColors.WoodDark);
         buffer.put(asciiMode ? "| " : "║ ");
 
-        string[] shortcuts;
+        const(string)[] shortcuts;
         if (width >= 78)
         {
-            shortcuts = [
-                "[Espaço] Pausar",
-                "[N] Próximo",
-                "[R] Reiniciar",
-                "[+/-] Ajustar",
-                "[M] Mute",
-                "[Q] Sair"
-            ];
+            shortcuts = tr.shortcutsFull;
         }
         else if (width >= 60)
         {
-            shortcuts = [
-                "[Esp]Pausa",
-                "[N]Próx",
-                "[R]Reset",
-                "[+/-]Min",
-                "[M]Mute",
-                "[Q]Sair"
-            ];
+            shortcuts = tr.shortcutsMedium;
         }
         else
         {
-            shortcuts = [
-                "[Esp]Pausa",
-                "[N]Próx",
-                "[R]Reset",
-                "[Q]Sair"
-            ];
+            shortcuts = tr.shortcutsSmall;
         }
 
         buffer.put(RusticColors.WoodMed);
@@ -1010,7 +991,7 @@ class Renderer
         buffer.put(RusticColors.WoodDark);
         buffer.put(asciiMode ? "| " : "║ ");
 
-        string[4] shortcuts = ["[Esp]Pausa", "[N]Próx", "[R]Reset", "[Q]Sair"];
+        const(string)[] shortcuts = tr.shortcutsSmall;
         buffer.put(RusticColors.WoodMed);
         int totalVis = 0;
         foreach (i, s; shortcuts)
@@ -1042,6 +1023,68 @@ class Renderer
     }
 }
 
-import std.string : indexOf;
+unittest
+{
+    import std.string : splitLines;
 
+    // TC-UI-01: visibleWidth calculations
+    assert(visibleWidth("Hello") == 5);
+    assert(visibleWidth("\033[1;38;5;208mWORK / FOCUS\033[0m") == 12);
+    assert(visibleWidth("╔════════╗") == 10);
+    assert(visibleWidth("[Espaço] Pausar") == 15);
+    assert(visibleWidth("[Space] Pause") == 13);
+    assert(visibleWidth("[SOM: ON]") == 9);
+    assert(visibleWidth("[SOUND: ON]") == 11);
 
+    // Layout breakpoints test across PT and EN, ascii and unicode, running and paused
+    TerminalSize[4] breakpoints = [
+        TerminalSize(80, 24), // Desktop Full
+        TerminalSize(60, 16), // Medium Compact
+        TerminalSize(40, 8),  // Split Mini
+        TerminalSize(30, 4)   // Ultra Mini
+    ];
+
+    PomodoroConfig cfgPT;
+    cfgPT.lang = Language.PT;
+    auto pomoPT = new Pomodoro(cfgPT);
+    auto sound = new SoundEngine(false);
+
+    PomodoroConfig cfgEN;
+    cfgEN.lang = Language.EN;
+    auto pomoEN = new Pomodoro(cfgEN);
+
+    foreach (bp; breakpoints)
+    {
+        foreach (lang; [Language.PT, Language.EN])
+        {
+            foreach (ascii; [false, true])
+            {
+                auto r = new Renderer(ascii, lang);
+                auto pomo = (lang == Language.PT) ? pomoPT : pomoEN;
+
+                // Test unpaused
+                r.render(pomo, sound, bp);
+                assert(r.buffer.data.length > 0);
+
+                // Test paused
+                pomo.togglePause();
+                r.render(pomo, sound, bp);
+                assert(r.buffer.data.length > 0);
+                pomo.togglePause(); // revert
+
+                // Test short break
+                pomo.nextPhase();
+                r.render(pomo, sound, bp);
+                assert(r.buffer.data.length > 0);
+
+                // Test long break
+                pomo.nextPhase();
+                pomo.nextPhase();
+                pomo.nextPhase();
+                r.render(pomo, sound, bp);
+                assert(r.buffer.data.length > 0);
+                pomo.nextPhase(); // back to work
+            }
+        }
+    }
+}

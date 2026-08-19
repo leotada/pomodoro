@@ -1,6 +1,6 @@
 {
 	"name": "pomodoro",
-	"description": "Temporizador Pomodoro para terminal com animações em caracteres e alarme procedural",
+	"description": "Terminal Pomodoro timer with character animations and procedural alarm",
 	"authors": ["Leonardo"],
 	"license": "MIT",
 	"targetType": "executable",

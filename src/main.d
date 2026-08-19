@@ -9,33 +9,32 @@ import pomodoro;
 import sound;
 import terminal;
 import ui;
+import i18n;
 
-void printHelp(string programName)
+void printHelp(string programName, Language lang = Language.PT)
 {
+    auto tr = getTranslations(lang);
     writeln("==========================================================");
-    writeln("  POMODORO TIMER PARA TERMINAL (EM D)");
+    writeln(tr.helpTitle);
     writeln("==========================================================");
-    writeln("Uso: dub run -- [opções]");
-    writeln("  ou ./bin/pomodoro [opções]");
+    writeln(tr.helpUsage);
     writeln("");
-    writeln("Opções:");
-    writeln("  -w, --work <min>        Duração do tempo de foco em minutos (padrão: 25)");
-    writeln("  -s, --short-break <min> Duração da pausa curta em minutos (padrão: 5)");
-    writeln("  -l, --long-break <min>  Duração da pausa longa em minutos (padrão: 15)");
-    writeln("  -c, --cycles <qtd>      Ciclos de foco antes da pausa longa (padrão: 4)");
-    writeln("  --no-sound              Inicia com som desativado");
-    writeln("  --test-sound            Testa o sintetizador procedural de áudio e sai");
-    writeln("  --ascii                 Modo compatibilidade (apenas caracteres ASCII 7-bit)");
-    writeln("  -h, --help              Exibe esta mensagem de ajuda");
+    writeln(tr.helpOptionsHeader);
+    writeln(tr.helpOptWork);
+    writeln(tr.helpOptShortBreak);
+    writeln(tr.helpOptLongBreak);
+    writeln(tr.helpOptCycles);
+    writeln(tr.helpOptLang);
+    writeln(tr.helpOptNoSound);
+    writeln(tr.helpOptTestSound);
+    writeln(tr.helpOptAscii);
+    writeln(tr.helpOptHelp);
     writeln("");
-    writeln("Atalhos no Terminal:");
-    writeln("  [Espaço]   Pausar ou Retomar o temporizador");
-    writeln("  [N]/[Enter] Pular para a próxima fase");
-    writeln("  [R]        Reiniciar a fase atual");
-    writeln("  [+]        Adicionar 1 minuto ao tempo atual");
-    writeln("  [-]        Subtrair 1 minuto do tempo atual");
-    writeln("  [M]        Ligar / Desligar alarme procedural (Mute)");
-    writeln("  [Q]/[ESC]  Sair do programa");
+    writeln(tr.helpShortcutsHeader);
+    foreach (s; tr.helpShortcuts)
+    {
+        writeln(s);
+    }
     writeln("==========================================================");
 }
 
@@ -44,31 +43,35 @@ int main(string[] args)
     PomodoroConfig config;
     bool noSound = false;
     bool testSound = false;
-    bool showHelp = false;
+    string langArg = "pt";
 
     try
     {
         auto helpInformation = getopt(
             args,
+            std.getopt.config.caseSensitive,
             "work|w",        "Duração do foco (minutos)", &config.workMinutes,
             "short-break|s", "Duração da pausa curta (minutos)", &config.shortBreakMinutes,
             "long-break|l",  "Duração da pausa longa (minutos)", &config.longBreakMinutes,
             "cycles|c",      "Quantidade de ciclos de foco", &config.cyclesBeforeLongBreak,
+            "lang|L",        "Idioma / Language (pt, en)", &langArg,
             "no-sound",      "Desativar som procedural", &noSound,
             "test-sound",    "Testar sons procedurais e sair", &testSound,
             "ascii",         "Ativar modo ASCII estrito", &config.asciiMode
         );
 
+        config.lang = parseLanguage(langArg);
+
         if (helpInformation.helpWanted)
         {
-            printHelp(args[0]);
+            printHelp(args[0], config.lang);
             return 0;
         }
     }
     catch (Exception e)
     {
         writefln("Erro nos argumentos: %s", e.msg);
-        writeln("Use --help para ver as opções disponíveis.");
+        writeln("Opções de idioma suportadas: 'pt', 'en'. Use --help para ver as opções disponíveis.");
         return 1;
     }
 
@@ -77,18 +80,19 @@ int main(string[] args)
     // Modo de teste sonoro procedural
     if (testSound)
     {
-        writeln("\n🎵 Testando sintetizador procedural de áudio estéreo...");
+        auto tr = getTranslations(config.lang);
+        writeln(tr.soundTestStart);
         auto soundEngine = new SoundEngine(true);
 
-        writeln("1/2 - Tocando acorde zen relaxante de Fim de Foco (C5 -> E5 -> G5 -> B5 -> C6)...");
+        writeln(tr.soundTestWork);
         soundEngine.playSync(SoundType.WorkFinished);
         Thread.sleep(dur!"msecs"(1000));
 
-        writeln("2/2 - Tocando sino duplo suave de Retorno ao Foco (A4 -> E5)...");
+        writeln(tr.soundTestBreak);
         soundEngine.playSync(SoundType.BreakFinished);
         Thread.sleep(dur!"msecs"(500));
 
-        writeln("✅ Teste de som concluído com sucesso!\n");
+        writeln(tr.soundTestSuccess);
         return 0;
     }
 
@@ -96,7 +100,7 @@ int main(string[] args)
     auto term = new Terminal();
     auto sound = new SoundEngine(config.enableSound);
     auto pomo = new Pomodoro(config);
-    auto renderer = new Renderer(config.asciiMode);
+    auto renderer = new Renderer(config.asciiMode, config.lang);
 
     term.enterAlternateScreen();
     term.enableRawMode();
