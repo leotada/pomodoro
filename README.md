@@ -1,70 +1,90 @@
-# ⌛ Pomodoro Timer para Terminal (em D)
+🌐 Language / Idioma: [English](README.md) | [Português](README.pt.md)
 
-Um temporizador Pomodoro simples, elegante e de **baixíssimo consumo de memória RAM (< 3.5 MB)** e CPU, desenvolvido na linguagem **D (Dlang)**.
+# ⌛ Terminal Pomodoro Timer (in D)
 
-Apresenta uma estética limpa de terminal com caracteres texturizados (`░ ▒ ▓ █`), animações acolhedoras de fogueira/ampulheta ASCII, relógio de dígitos grandes e um **sintetizador de alarme procedural harmônico relaxante** (estilo sino tibetano / chime zen / marimba).
+A simple, elegant Pomodoro timer with **ultra-low RAM usage (< 3.5 MB)** and minimal CPU consumption, built with the **D programming language (Dlang)**.
 
----
-
-## 📸 Recursos
-
-- ⏱️ **Interface Visual no Console**: Relógio com dígitos grandes texturizados, molduras organizadas e tons quentes (âmbar, terracota, musgo).
-- ⏳ **Barra de Progresso Fluida**: Sub-blocos graduais (`░`, `▒`, `▓`, `█`) e indicador dinâmico percentual.
-- 🔥 **Animações em Caracteres**: Fogueira/brasas animadas em ASCII e contador visual de ciclos.
-- 🎵 **Alarme Procedural Relaxante**: Sintetizador matemático embutido gerando ondas senoidais harmônicas com decaimento exponencial (sem arquivos pesados gravados, gerado sob demanda em memória e executado assincronamente).
-- ⚡ **Extremamente Leve**: Consumo típico de ~3.4 MB de RAM e ~0% de CPU.
-- ⌨️ **Controles Interativos em Tempo Real**: Pausa, pulo de fase, ajuste de minutos e mute instantâneos.
+Features a clean terminal aesthetic with textured characters (`░ ▒ ▓ █`), cozy ASCII campfire/hourglass animations, a large-digit clock, and a **relaxing harmonic procedural audio synthesizer alarm** (Tibetan singing bowl / zen chime / marimba style).
 
 ---
 
-## 🛠️ Como Compilar e Executar
+## 📸 Features
 
-### Pré-requisitos
-- Compilador D (`dmd` ou `ldc2`) e o gerenciador de pacotes `dub`.
+- ⏱️ **Terminal Visual Interface**: Large textured digit clock, structured frames, and warm rustic color palette (amber, terracotta, moss green).
+- ⏳ **Fluid Progress Bar**: Smooth sub-block gradations (`░`, `▒`, `▓`, `█`) and dynamic percentage indicator.
+- 🔥 **Character Animations**: Animated ASCII campfire/embers and visual cycle counter.
+- 🎵 **Relaxing Procedural Audio Alarm**: Built-in mathematical synthesizer generating harmonic sine waves with exponential decay (no heavy static audio files, generated on-demand in memory and played asynchronously).
+- ⚡ **Extremely Lightweight**: Typical footprint of ~3.4 MB RAM and ~0% CPU.
+- ⌨️ **Real-Time Interactive Controls**: Instant pause, phase skipping, minute adjustments, and mute toggle.
+- 🌐 **Internationalization (i18n)**: Full support for English (`en`) and Portuguese (`pt`).
 
-### Compilando e Executando com DUB:
+---
+
+## 🛠️ Build and Run
+
+### Prerequisites
+- D compiler (`dmd` or `ldc2`) and package manager `dub`.
+
+### Compiling and Running with DUB:
 ```bash
-# Execução direta com DUB:
+# Direct run with DUB:
 dub run
 
-# Ou compilar binário otimizado de release:
+# Or build optimized release binary:
 dub build --build=release
 ./bin/pomodoro
 ```
 
 ---
 
-## 🎮 Controles no Terminal
+## 🎮 Terminal Keyboard Controls
 
-| Tecla | Ação |
+| Key | Action |
 | :--- | :--- |
-| **`Espaço`** | Pausar ou Retomar a contagem |
-| **`N`** ou **`Enter`** | Pular para a próxima fase (Foco ➔ Pausa ➔ ...) |
-| **`R`** | Reiniciar a fase atual |
-| **`+`** | Adicionar 1 minuto ao tempo restante |
-| **`-`** | Subtrair 1 minuto do tempo restante |
-| **`M`** | Alternar Som (Ativar / Mudo) |
-| **`Q`** ou **`ESC`** | Sair do programa e restaurar o terminal |
+| **`Space`** | Pause or Resume the timer |
+| **`N`** or **`Enter`** | Skip to next phase (Work ➔ Break ➔ ...) |
+| **`R`** | Reset current phase |
+| **`+`** | Add 1 minute to remaining time |
+| **`-`** | Subtract 1 minute from remaining time |
+| **`M`** | Toggle Sound Alarm (Enable / Mute) |
+| **`Q`** or **`ESC`** | Quit program and restore terminal |
 
 ---
 
-## ⚙️ Opções de Linha de Comando (CLI)
+## ⚙️ Command-Line Options (CLI)
 
+| Option | Description | Default |
+| :--- | :--- | :--- |
+| `-w, --work <min>` | Focus work duration in minutes | `25` |
+| `-s, --short-break <min>` | Short break duration in minutes | `5` |
+| `-l, --long-break <min>` | Long break duration in minutes | `15` |
+| `-c, --cycles <count>` | Focus cycles before long break | `4` |
+| `-L, --lang <pt\|en>` | Interface language (`pt` or `en`) | `pt` |
+| `--no-sound` | Start with sound disabled | Disabled |
+| `--test-sound` | Test procedural audio synthesizer and exit | - |
+| `--ascii` | Strict ASCII compatibility mode (7-bit chars only) | Disabled |
+| `-h, --help` | Display this help message | - |
+
+### Usage Examples:
 ```bash
-# Definir tempos customizados (ex: 50 min foco, 10 min pausa curta, 30 min pausa longa, 3 ciclos)
+# Custom durations (e.g. 50 min work, 10 min short break, 30 min long break, 3 cycles)
 dub run -- -w 50 -s 10 -l 30 -c 3
 
-# Testar apenas o sintetizador procedural de áudio:
+# Set interface language (pt or en):
+dub run -- -L en
+dub run -- --lang en
+
+# Test procedural audio synthesizer only:
 dub run -- --test-sound
 
-# Iniciar no modo silencioso:
+# Start in silent mode:
 dub run -- --no-sound
 
-# Iniciar em modo ASCII estrito (para terminais sem suporte a Unicode):
+# Start in strict ASCII mode:
 dub run -- --ascii
 ```
 
 ---
 
-## 📜 Licença
-Distribuído sob a licença MIT.
+## 📜 License
+Distributed under the MIT License.

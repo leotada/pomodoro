@@ -1,6 +1,7 @@
 module pomodoro;
 
 import core.time : Duration, dur, MonoTime;
+import i18n;
 
 enum PomodoroMode
 {
@@ -17,6 +18,7 @@ struct PomodoroConfig
     int cyclesBeforeLongBreak = 4;
     bool enableSound = true;
     bool asciiMode = false;
+    Language lang = Language.PT;
 }
 
 class Pomodoro
