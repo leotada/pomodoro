@@ -77,7 +77,6 @@ int main(string[] args)
 
     config.enableSound = !noSound;
 
-    // Modo de teste sonoro procedural
     if (testSound)
     {
         auto tr = getTranslations(config.lang);
@@ -96,7 +95,6 @@ int main(string[] args)
         return 0;
     }
 
-    // Inicialização do Terminal e Estado
     auto term = new Terminal();
     auto sound = new SoundEngine(config.enableSound);
     auto pomo = new Pomodoro(config);
@@ -116,7 +114,6 @@ int main(string[] args)
 
     while (running)
     {
-        // 1. Processa entrada do teclado (não-bloqueante)
         Key k = term.readKey();
         while (k != Key.None)
         {
@@ -166,13 +163,11 @@ int main(string[] args)
 
         if (!running) break;
 
-        // 2. Atualiza o relógio do Pomodoro
         bool completed = pomo.tick();
         if (completed)
         {
             PomodoroMode finishedMode = pomo.getMode();
             
-            // Dispara alarme procedural relaxante
             if (finishedMode == PomodoroMode.Work)
             {
                 sound.play(SoundType.WorkFinished);
@@ -185,18 +180,15 @@ int main(string[] args)
             pomo.nextPhase();
         }
 
-        // 3. Atualiza frame de animação rústica
         tickCounter++;
         if (tickCounter % 3 == 0)
         {
             renderer.updateAnim();
         }
 
-        // 4. Renderiza a tela
         TerminalSize size = term.getSize();
         renderer.render(pomo, sound, size);
 
-        // 5. Descanso para baixíssimo uso de CPU (~15 FPS)
         Thread.sleep(dur!"msecs"(65));
     }
 

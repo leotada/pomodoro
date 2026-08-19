@@ -65,7 +65,6 @@ class Terminal
 {
     this()
     {
-        // Registra manipuladores de sinal
         signal(SIGINT, &signalHandler);
         signal(SIGTERM, &signalHandler);
         signal(SIGWINCH, &winchHandler);
@@ -199,13 +198,12 @@ class Terminal
                 case '=':  return Key.Plus;
                 case '-':
                 case '_':  return Key.Minus;
-                case 27:   return Key.Escape; // ESC
+                case 27:   return Key.Escape;
                 default:   return Key.Other;
             }
         }
         else if (n >= 3 && buf[0] == 27 && buf[1] == '[')
         {
-            // Sequências de escape como setas
             switch (buf[2])
             {
                 case 'A': return Key.Up;

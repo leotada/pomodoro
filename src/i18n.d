@@ -11,7 +11,6 @@ enum Language
 
 struct TranslationStrings
 {
-    // Help text
     string helpTitle;
     string helpUsage;
     string helpOptionsHeader;
@@ -27,44 +26,36 @@ struct TranslationStrings
     string helpShortcutsHeader;
     string[7] helpShortcuts;
 
-    // Sound test
     string soundTestStart;
     string soundTestWork;
     string soundTestBreak;
     string soundTestSuccess;
 
-    // Phases
     string phaseWork;
     string phaseShortBreak;
     string phaseLongBreak;
 
-    // Sound status
     string soundOn;
     string soundOff;
     string soundOnShort;
     string soundOffShort;
 
-    // Cycle indicators
     string cycleLabelFull;
     string cycleLabelShort;
 
-    // Status badges
     string statusActivePrefix;
     string statusPausedFull;
     string statusPausedShort;
     string statusPausedMini;
     string statusPausedUltra;
 
-    // Stats
     string statsElapsedFull;
     string statsElapsedShort;
 
-    // Quotes and atmospheric text
     string[4] sideQuotes;
     string quotePaused;
     string quoteRunning;
 
-    // Responsive shortcuts
     string[6] shortcutsFull;
     string[6] shortcutsMedium;
     string[4] shortcutsSmall;
@@ -72,7 +63,6 @@ struct TranslationStrings
 }
 
 immutable TranslationStrings PT_TRANSLATIONS = TranslationStrings(
-    // Help text
     "  POMODORO TIMER PARA TERMINAL (EM D)",
     "Uso: dub run -- [opções]\n  ou ./bin/pomodoro [opções]",
     "Opções:",
@@ -96,39 +86,32 @@ immutable TranslationStrings PT_TRANSLATIONS = TranslationStrings(
         "  [Q]/[ESC]  Sair do programa"
     ],
 
-    // Sound test
     "\n🎵 Testando sintetizador procedural de áudio estéreo...",
     "1/2 - Tocando acorde zen relaxante de Fim de Foco (C5 -> E5 -> G5 -> B5 -> C6)...",
     "2/2 - Tocando sino duplo suave de Retorno ao Foco (A4 -> E5)...",
     "✅ Teste de som concluído com sucesso!\n",
 
-    // Phases
     "TRABALHO / FOCO",
     "PAUSA CURTA",
     "PAUSA LONGA",
 
-    // Sound status
     "[SOM: ON]",
     "[SOM: OFF]",
     "[ON]",
     "[OFF]",
 
-    // Cycle indicators
     "Ciclo: [ ",
     "Ciclo %d/%d",
 
-    // Status badges
     "FASE ATUAL: ",
     "PAUSADO - [Espaço para Retomar]",
     "PAUSADO",
     " (PAUSADO)",
     " [PAUSA]",
 
-    // Stats
     "Decorrido: %02d:%02d  │  Pomodoros Concluídos: %d",
     "Decorrido: %02d:%02d  │  Feitos: %d",
 
-    // Quotes
     [
         "\"O tempo flui como a madeira que se esculpe.\"",
         "\"Foco no presente, passo a passo.\"",
@@ -138,7 +121,6 @@ immutable TranslationStrings PT_TRANSLATIONS = TranslationStrings(
     "Timer em pausa. Respire fundo.",
     "Forjando progresso em seu dia...",
 
-    // Shortcuts
     [
         "[Espaço] Pausar",
         "[N] Próximo",
@@ -165,7 +147,6 @@ immutable TranslationStrings PT_TRANSLATIONS = TranslationStrings(
 );
 
 immutable TranslationStrings EN_TRANSLATIONS = TranslationStrings(
-    // Help text
     "  TERMINAL POMODORO TIMER (IN D)",
     "Usage: dub run -- [options]\n  or   ./bin/pomodoro [options]",
     "Options:",
@@ -189,39 +170,32 @@ immutable TranslationStrings EN_TRANSLATIONS = TranslationStrings(
         "  [Q]/[ESC]  Quit program"
     ],
 
-    // Sound test
     "\n🎵 Testing stereo procedural audio synthesizer...",
     "1/2 - Playing relaxing zen chime for Work End (C5 -> E5 -> G5 -> B5 -> C6)...",
     "2/2 - Playing gentle double bell for Focus Return (A4 -> E5)...",
     "✅ Sound test completed successfully!\n",
 
-    // Phases
     "WORK / FOCUS",
     "SHORT BREAK",
     "LONG BREAK",
 
-    // Sound status
     "[SOUND: ON]",
     "[SOUND: OFF]",
     "[ON]",
     "[OFF]",
 
-    // Cycle indicators
     "Cycle: [ ",
     "Cycle %d/%d",
 
-    // Status badges
     "CURRENT PHASE: ",
     "PAUSED - [Space to Resume]",
     "PAUSED",
     " (PAUSED)",
     " [PAUSED]",
 
-    // Stats
     "Elapsed: %02d:%02d  │  Completed Pomodoros: %d",
     "Elapsed: %02d:%02d  │  Done: %d",
 
-    // Quotes
     [
         "\"Time flows like carved wood.\"",
         "\"Focus on the present, step by step.\"",
@@ -231,7 +205,6 @@ immutable TranslationStrings EN_TRANSLATIONS = TranslationStrings(
     "Timer paused. Take a deep breath.",
     "Forging progress in your day...",
 
-    // Shortcuts
     [
         "[Space] Pause",
         "[N] Next",
