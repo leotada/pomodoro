@@ -15,7 +15,7 @@ Features a clean terminal aesthetic with textured characters (`░ ▒ ▓ █`)
 - 🔥 **Character Animations**: Animated ASCII campfire/embers and visual cycle counter.
 - 🎵 **Relaxing Procedural Audio Alarm**: Built-in mathematical synthesizer generating harmonic sine waves with exponential decay (no heavy static audio files, generated on-demand in memory and played asynchronously).
 - ⚡ **Extremely Lightweight**: Typical footprint of ~3.4 MB RAM and ~0% CPU.
-- ⌨️ **Real-Time Interactive Controls**: Instant pause, phase skipping, minute adjustments, and mute toggle.
+- ⌨️ **Real-Time Interactive Controls**: Instant pause, phase skipping, minute adjustments, duration settings, and mute toggle.
 - 🌐 **Internationalization (i18n)**: Full support for English (`en`) and Portuguese (`pt`).
 
 ---
@@ -47,7 +47,8 @@ dub build --build=release
 | **`+`** | Add 1 minute to remaining time |
 | **`-`** | Subtract 1 minute from remaining time |
 | **`M`** | Toggle Sound Alarm (Enable / Mute) |
-| **`Q`** or **`ESC`** | Quit program and restore terminal |
+| **`C`** | Set work, short break, and long break durations (applies to the next phases; `R` restarts the current phase with the new time) |
+| **`Q`** or **`ESC`** | Quit program and restore terminal (`ESC` closes the duration panel when it is open) |
 
 ---
 

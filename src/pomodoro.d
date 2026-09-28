@@ -128,6 +128,29 @@ class Pomodoro
         lastUpdateTime = MonoTime.currTime;
     }
 
+    /// Atualiza a duração configurada sem mexer no countdown da fase atual.
+    void setWorkMinutes(float minutes)
+    {
+        config.workMinutes = clampMinutes(minutes);
+    }
+
+    void setShortBreakMinutes(float minutes)
+    {
+        config.shortBreakMinutes = clampMinutes(minutes);
+    }
+
+    void setLongBreakMinutes(float minutes)
+    {
+        config.longBreakMinutes = clampMinutes(minutes);
+    }
+
+    private static float clampMinutes(float minutes)
+    {
+        if (minutes < 1.0f) return 1.0f;
+        if (minutes > 180.0f) return 180.0f;
+        return minutes;
+    }
+
     void addMinutes(int deltaMinutes)
     {
         Duration d = dur!"minutes"(deltaMinutes);
@@ -183,4 +206,32 @@ class Pomodoro
     {
         return config;
     }
+}
+
+unittest
+{
+    PomodoroConfig cfg;
+    auto pomo = new Pomodoro(cfg);
+
+    long before = pomo.getRemainingSeconds();
+    pomo.setWorkMinutes(50);
+    assert(pomo.getRemainingSeconds() == before);
+    assert(pomo.getConfig().workMinutes == 50.0f);
+
+    pomo.resetCurrent();
+    assert(pomo.getRemainingSeconds() == 50 * 60);
+
+    pomo.setShortBreakMinutes(2);
+    assert(pomo.getMode() == PomodoroMode.Work);
+    assert(pomo.getRemainingSeconds() == 50 * 60);
+
+    pomo.nextPhase();
+    assert(pomo.getMode() == PomodoroMode.ShortBreak);
+    assert(pomo.getRemainingSeconds() == 2 * 60);
+
+    pomo.setWorkMinutes(0);
+    pomo.setLongBreakMinutes(999);
+    assert(pomo.getConfig().workMinutes == 1.0f);
+    assert(pomo.getConfig().longBreakMinutes == 180.0f);
+    assert(pomo.getRemainingSeconds() == 2 * 60);
 }

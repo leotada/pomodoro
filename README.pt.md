@@ -15,7 +15,7 @@ Apresenta uma estética limpa de terminal com caracteres texturizados (`░ ▒ 
 - 🔥 **Animações em Caracteres**: Fogueira/brasas animadas em ASCII e contador visual de ciclos.
 - 🎵 **Alarme Procedural Relaxante**: Sintetizador matemático embutido gerando ondas senoidais harmônicas com decaimento exponencial (sem arquivos pesados gravados, gerado sob demanda em memória e executado assincronamente).
 - ⚡ **Extremamente Leve**: Consumo típico de ~3.4 MB de RAM e ~0% de CPU.
-- ⌨️ **Controles Interativos em Tempo Real**: Pausa, pulo de fase, ajuste de minutos e mute instantâneos.
+- ⌨️ **Controles Interativos em Tempo Real**: Pausa, pulo de fase, ajuste de minutos, tempos de trabalho e pausa, e mute instantâneos.
 - 🌐 **Internacionalização (i18n)**: Suporte completo para Português (`pt`) e Inglês (`en`).
 
 ---
@@ -47,7 +47,8 @@ dub build --build=release
 | **`+`** | Adicionar 1 minuto ao tempo restante |
 | **`-`** | Subtrair 1 minuto do tempo restante |
 | **`M`** | Alternar Som (Ativar / Mudo) |
-| **`Q`** ou **`ESC`** | Sair do programa e restaurar o terminal |
+| **`C`** | Ajustar tempos de trabalho, pausa curta e pausa longa (vale nas próximas fases; `R` reinicia a fase atual com o novo tempo) |
+| **`Q`** ou **`ESC`** | Sair do programa e restaurar o terminal (`ESC` fecha o painel de tempos quando ele está aberto) |
 
 ---
 

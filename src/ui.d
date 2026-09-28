@@ -4,6 +4,7 @@ import std.array : Appender, appender;
 import std.format : formattedWrite;
 import std.stdio : write, stdout;
 import std.algorithm : max, min;
+import std.math : floor;
 import std.string : indexOf;
 
 import pomodoro;
@@ -235,6 +236,12 @@ size_t visibleWidth(string s)
     return w;
 }
 
+struct SettingsPanel
+{
+    bool open = false;
+    int selected = 0;
+}
+
 class Renderer
 {
     private bool asciiMode;
@@ -269,7 +276,7 @@ class Renderer
         buffer.put("\033[K\n");
     }
 
-    void render(Pomodoro pomo, SoundEngine sound, TerminalSize termSize)
+    void render(Pomodoro pomo, SoundEngine sound, TerminalSize termSize, SettingsPanel settings = SettingsPanel.init)
     {
         buffer = appender!string();
 
@@ -314,6 +321,14 @@ class Renderer
 
         int cols = termSize.columns;
         int rows = termSize.rows;
+
+        if (settings.open)
+        {
+            renderSettings(pomo, minutes, seconds, phaseColor, settings, cols, rows);
+            write(buffer.data);
+            stdout.flush();
+            return;
+        }
 
         // Seleciona layout adaptativo de acordo com o espaço disponível no terminal
         if (cols < 36 || rows < 6)
@@ -1021,6 +1036,180 @@ class Renderer
         buffer.put(RusticColors.Reset);
         endLine();
     }
+
+    private void renderSettings(Pomodoro pomo, long minutes, long seconds, string phaseColor, SettingsPanel settings, int cols, int rows)
+    {
+        if (cols < 36 || rows < 8)
+        {
+            renderSettingsPlain(pomo, minutes, seconds, phaseColor, settings);
+            return;
+        }
+
+        int width = min(52, max(36, cols - 2));
+        bool compact = rows < 16 || width < 46;
+        int boxHeight = compact ? 10 : 13;
+
+        leftMargin = max(0, (cols - width) / 2);
+        int topMargin = max(0, (rows - boxHeight) / 2);
+        foreach (_; 0 .. topMargin) buffer.put("\033[K\n");
+
+        PomodoroConfig cfg = pomo.getConfig();
+        renderBoxTop(width);
+        renderSettingsTitle(minutes, seconds, phaseColor, width);
+        renderBoxDivider(width);
+        renderDurationRow(tr.settingsWork, cfg.workMinutes, settings.selected == 0, width);
+        renderDurationRow(tr.settingsShort, cfg.shortBreakMinutes, settings.selected == 1, width);
+        renderDurationRow(tr.settingsLong, cfg.longBreakMinutes, settings.selected == 2, width);
+        if (compact)
+        {
+            renderSettingsText(tr.settingsHintCompact, width);
+        }
+        else
+        {
+            renderBlankLine(width);
+            renderSettingsText(tr.settingsHint, width);
+            renderSettingsText(tr.settingsHintReset, width);
+        }
+        renderBoxDivider(width);
+        renderSettingsText(compact ? tr.settingsNavCompact : tr.settingsNav, width);
+        if (!compact)
+            renderSettingsText(tr.settingsClose, width);
+        renderBoxBottom(width);
+        buffer.put("\033[J");
+    }
+
+    private void renderSettingsPlain(Pomodoro pomo, long minutes, long seconds, string phaseColor, SettingsPanel settings)
+    {
+        buffer.put(RusticColors.GoldBright);
+        buffer.put(tr.settingsTitle);
+        buffer.put("  ");
+        buffer.put(phaseColor);
+        formattedWrite(buffer, "%02d:%02d", minutes, seconds);
+        buffer.put(RusticColors.Reset);
+        endLine();
+
+        PomodoroConfig cfg = pomo.getConfig();
+        renderPlainDuration(tr.settingsWork, cfg.workMinutes, settings.selected == 0);
+        renderPlainDuration(tr.settingsShort, cfg.shortBreakMinutes, settings.selected == 1);
+        renderPlainDuration(tr.settingsLong, cfg.longBreakMinutes, settings.selected == 2);
+
+        buffer.put(RusticColors.Muted);
+        buffer.put(tr.settingsNavCompact);
+        buffer.put(RusticColors.Reset);
+        endLine();
+        buffer.put("\033[J");
+    }
+
+    private void renderPlainDuration(string label, float minutes, bool selected)
+    {
+        if (selected)
+            buffer.put(RusticColors.GoldBright);
+        else
+            buffer.put(RusticColors.Cream);
+        buffer.put(selected ? "> " : "  ");
+        buffer.put(label);
+        buffer.put(" ");
+        buffer.put(formatMinutes(minutes));
+        buffer.put(tr.settingsMinSuffix);
+        buffer.put(RusticColors.Reset);
+        endLine();
+    }
+
+    private void renderSettingsTitle(long minutes, long seconds, string phaseColor, int width)
+    {
+        putMargin();
+        buffer.put(RusticColors.WoodDark);
+        buffer.put(asciiMode ? "| " : "║ ");
+
+        buffer.put(RusticColors.GoldBright);
+        buffer.put(RusticColors.Bold);
+        buffer.put(tr.settingsTitle);
+        buffer.put(RusticColors.Reset);
+
+        auto rem = appender!string();
+        formattedWrite(rem, tr.settingsRemaining, minutes, seconds);
+        int titleVis = cast(int)visibleWidth(tr.settingsTitle);
+        int remVis = cast(int)visibleWidth(rem.data);
+        int pad = max(1, (width - 4) - titleVis - remVis);
+        foreach (_; 0 .. pad) buffer.put(" ");
+
+        buffer.put(phaseColor);
+        buffer.put(rem.data);
+        buffer.put(RusticColors.Reset);
+
+        buffer.put(RusticColors.WoodDark);
+        buffer.put(asciiMode ? " |" : " ║");
+        buffer.put(RusticColors.Reset);
+        endLine();
+    }
+
+    private void renderDurationRow(string label, float minutes, bool selected, int width)
+    {
+        putMargin();
+        buffer.put(RusticColors.WoodDark);
+        buffer.put(asciiMode ? "|" : "║");
+
+        string mark = selected ? ">" : " ";
+        string value = formatMinutes(minutes) ~ tr.settingsMinSuffix;
+        int leftVis = 3 + cast(int)visibleWidth(label);
+        int valueVis = cast(int)visibleWidth(value);
+        int pad = max(1, (width - 2) - leftVis - valueVis);
+
+        if (selected)
+            buffer.put(RusticColors.GoldBright);
+        else
+            buffer.put(RusticColors.Cream);
+        buffer.put(RusticColors.Bold);
+        buffer.put(" ");
+        buffer.put(mark);
+        buffer.put(" ");
+        buffer.put(label);
+        buffer.put(RusticColors.Reset);
+
+        foreach (_; 0 .. pad) buffer.put(" ");
+
+        if (selected)
+            buffer.put(RusticColors.Amber);
+        else
+            buffer.put(RusticColors.WoodMed);
+        buffer.put(value);
+        buffer.put(RusticColors.Reset);
+
+        buffer.put(RusticColors.WoodDark);
+        buffer.put(asciiMode ? "|" : "║");
+        buffer.put(RusticColors.Reset);
+        endLine();
+    }
+
+    private void renderSettingsText(string text, int width)
+    {
+        putMargin();
+        buffer.put(RusticColors.WoodDark);
+        buffer.put(asciiMode ? "|  " : "║  ");
+
+        buffer.put(RusticColors.Muted);
+        buffer.put(text);
+        buffer.put(RusticColors.Reset);
+
+        int textVis = cast(int)visibleWidth(text);
+        int pad = max(0, width - (3 + textVis + 1));
+        foreach (_; 0 .. pad) buffer.put(" ");
+
+        buffer.put(RusticColors.WoodDark);
+        buffer.put(asciiMode ? "|" : "║");
+        buffer.put(RusticColors.Reset);
+        endLine();
+    }
+
+    private string formatMinutes(float minutes)
+    {
+        auto app = appender!string();
+        if (minutes == floor(minutes))
+            formattedWrite(app, "%d", cast(int)minutes);
+        else
+            formattedWrite(app, "%.1f", minutes);
+        return app.data;
+    }
 }
 
 unittest
@@ -1087,4 +1276,19 @@ unittest
             }
         }
     }
+
+    SettingsPanel panel;
+    panel.open = true;
+    panel.selected = 0;
+    auto pomoSettings = new Pomodoro(cfgPT);
+    pomoSettings.setWorkMinutes(50);
+    auto rSettings = new Renderer(false, Language.PT);
+    rSettings.render(pomoSettings, sound, TerminalSize(80, 24), panel);
+    assert(rSettings.buffer.data.indexOf("Trabalho") != -1);
+    assert(rSettings.buffer.data.indexOf("50 min") != -1);
+    assert(rSettings.buffer.data.indexOf("Pausa curta") != -1);
+
+    panel.selected = 1;
+    rSettings.render(pomoSettings, sound, TerminalSize(30, 5), panel);
+    assert(rSettings.buffer.data.indexOf("Trabalho") != -1);
 }

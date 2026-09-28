@@ -25,7 +25,7 @@ struct TranslationStrings
     string helpOptAscii;
     string helpOptHelp;
     string helpShortcutsHeader;
-    string[7] helpShortcuts;
+    string[8] helpShortcuts;
 
     // Sound test
     string soundTestStart;
@@ -64,8 +64,22 @@ struct TranslationStrings
     string quotePaused;
     string quoteRunning;
 
+    // Duration settings panel
+    string settingsTitle;
+    string settingsWork;
+    string settingsShort;
+    string settingsLong;
+    string settingsMinSuffix;
+    string settingsRemaining;
+    string settingsHint;
+    string settingsHintReset;
+    string settingsNav;
+    string settingsClose;
+    string settingsHintCompact;
+    string settingsNavCompact;
+
     // Responsive shortcuts
-    string[6] shortcutsFull;
+    string[7] shortcutsFull;
     string[6] shortcutsMedium;
     string[4] shortcutsSmall;
     string shortcutsUltra;
@@ -93,6 +107,7 @@ immutable TranslationStrings PT_TRANSLATIONS = TranslationStrings(
         "  [+]        Adicionar 1 minuto ao tempo atual",
         "  [-]        Subtrair 1 minuto do tempo atual",
         "  [M]        Ligar / Desligar alarme procedural (Mute)",
+        "  [C]        Tempos de trabalho e pausas",
         "  [Q]/[ESC]  Sair do programa"
     ],
 
@@ -138,13 +153,28 @@ immutable TranslationStrings PT_TRANSLATIONS = TranslationStrings(
     "Timer em pausa. Respire fundo.",
     "Forjando progresso em seu dia...",
 
+    // Duration settings panel
+    "TEMPOS",
+    "Trabalho",
+    "Pausa curta",
+    "Pausa longa",
+    " min",
+    "Restante: %02d:%02d",
+    "Próximas fases usam estes tempos.",
+    "[R] reinicia a fase atual.",
+    "[↑↓] campo    [+/-] ajustar",
+    "[C]/[Esc] fechar",
+    "Próximas fases. [R] reinicia.",
+    "[↑↓][+/-]  [C] fechar",
+
     // Shortcuts
     [
-        "[Espaço] Pausar",
-        "[N] Próximo",
-        "[R] Reiniciar",
-        "[+/-] Ajustar",
+        "[Esp] Pausar",
+        "[N] Próx",
+        "[R] Reset",
+        "[+/-] Min",
         "[M] Mute",
+        "[C] Tempo",
         "[Q] Sair"
     ],
     [
@@ -186,6 +216,7 @@ immutable TranslationStrings EN_TRANSLATIONS = TranslationStrings(
         "  [+]        Add 1 minute to current time",
         "  [-]        Subtract 1 minute from current time",
         "  [M]        Toggle procedural alarm sound (Mute)",
+        "  [C]        Work and break durations",
         "  [Q]/[ESC]  Quit program"
     ],
 
@@ -231,13 +262,28 @@ immutable TranslationStrings EN_TRANSLATIONS = TranslationStrings(
     "Timer paused. Take a deep breath.",
     "Forging progress in your day...",
 
+    // Duration settings panel
+    "TIMES",
+    "Work",
+    "Short break",
+    "Long break",
+    " min",
+    "Remaining: %02d:%02d",
+    "Next phases use these times.",
+    "[R] restarts the current phase.",
+    "[↑↓] field    [+/-] adjust",
+    "[C]/[Esc] close",
+    "Next phases. [R] restarts.",
+    "[↑↓][+/-]  [C] close",
+
     // Shortcuts
     [
-        "[Space] Pause",
+        "[Spc] Pause",
         "[N] Next",
         "[R] Reset",
-        "[+/-] Adjust",
+        "[+/-] Min",
         "[M] Mute",
+        "[C] Time",
         "[Q] Quit"
     ],
     [
@@ -365,12 +411,25 @@ unittest
     foreach (q; trPT.sideQuotes) assert(q.length > 0);
     foreach (q; trEN.sideQuotes) assert(q.length > 0);
 
-    assert(trPT.shortcutsFull.length == 6);
-    assert(trEN.shortcutsFull.length == 6);
+    assert(trPT.settingsTitle.length > 0);
+    assert(trEN.settingsTitle.length > 0);
+    assert(trPT.settingsWork.length > 0);
+    assert(trEN.settingsWork.length > 0);
+    assert(trPT.settingsShort.length > 0);
+    assert(trEN.settingsShort.length > 0);
+    assert(trPT.settingsLong.length > 0);
+    assert(trEN.settingsLong.length > 0);
+    assert(trPT.settingsHint.length > 0);
+    assert(trEN.settingsHint.length > 0);
+    assert(trPT.settingsNav.length > 0);
+    assert(trEN.settingsNav.length > 0);
+
+    assert(trPT.shortcutsFull.length == 7);
+    assert(trEN.shortcutsFull.length == 7);
     assert(trPT.shortcutsMedium.length == 6);
     assert(trEN.shortcutsMedium.length == 6);
     assert(trPT.shortcutsSmall.length == 4);
     assert(trEN.shortcutsSmall.length == 4);
-    assert(trPT.helpShortcuts.length == 7);
-    assert(trEN.helpShortcuts.length == 7);
+    assert(trPT.helpShortcuts.length == 8);
+    assert(trEN.helpShortcuts.length == 8);
 }

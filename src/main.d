@@ -113,6 +113,7 @@ int main(string[] args)
 
     bool running = true;
     int tickCounter = 0;
+    SettingsPanel settings;
 
     while (running)
     {
@@ -139,12 +140,18 @@ int main(string[] args)
                     break;
 
                 case Key.Plus:
-                    pomo.addMinutes(1);
+                    if (settings.open)
+                        adjustDuration(pomo, settings.selected, 1);
+                    else
+                        pomo.addMinutes(1);
                     sound.play(SoundType.Tick);
                     break;
 
                 case Key.Minus:
-                    pomo.addMinutes(-1);
+                    if (settings.open)
+                        adjustDuration(pomo, settings.selected, -1);
+                    else
+                        pomo.addMinutes(-1);
                     sound.play(SoundType.Tick);
                     break;
 
@@ -152,9 +159,30 @@ int main(string[] args)
                     sound.toggle();
                     break;
 
+                case Key.Char_c:
+                    settings.open = !settings.open;
+                    sound.play(SoundType.Tick);
+                    break;
+
+                case Key.Up:
+                    if (settings.open)
+                        settings.selected = (settings.selected + 2) % 3;
+                    break;
+
+                case Key.Down:
+                    if (settings.open)
+                        settings.selected = (settings.selected + 1) % 3;
+                    break;
+
                 case Key.Char_q:
-                case Key.Escape:
                     running = false;
+                    break;
+
+                case Key.Escape:
+                    if (settings.open)
+                        settings.open = false;
+                    else
+                        running = false;
                     break;
 
                 default:
@@ -194,11 +222,30 @@ int main(string[] args)
 
         // 4. Renderiza a tela
         TerminalSize size = term.getSize();
-        renderer.render(pomo, sound, size);
+        renderer.render(pomo, sound, size, settings);
 
         // 5. Descanso para baixíssimo uso de CPU (~15 FPS)
         Thread.sleep(dur!"msecs"(65));
     }
 
     return 0;
+}
+
+void adjustDuration(Pomodoro pomo, int field, int delta)
+{
+    PomodoroConfig cfg = pomo.getConfig();
+    switch (field)
+    {
+        case 0:
+            pomo.setWorkMinutes(cfg.workMinutes + delta);
+            break;
+        case 1:
+            pomo.setShortBreakMinutes(cfg.shortBreakMinutes + delta);
+            break;
+        case 2:
+            pomo.setLongBreakMinutes(cfg.longBreakMinutes + delta);
+            break;
+        default:
+            break;
+    }
 }

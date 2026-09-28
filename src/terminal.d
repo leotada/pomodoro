@@ -18,6 +18,7 @@ enum Key
     Char_r,
     Char_q,
     Char_m,
+    Char_c,
     Plus,
     Minus,
     Up,
@@ -195,6 +196,8 @@ class Terminal
                 case 'Q':  return Key.Char_q;
                 case 'm':
                 case 'M':  return Key.Char_m;
+                case 'c':
+                case 'C':  return Key.Char_c;
                 case '+':
                 case '=':  return Key.Plus;
                 case '-':
