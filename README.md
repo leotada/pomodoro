@@ -60,13 +60,13 @@ dub build --build=release
 | `-s, --short-break <min>` | Short break duration in minutes for this run only | saved, or `5` |
 | `-l, --long-break <min>` | Long break duration in minutes for this run only | saved, or `15` |
 | `-c, --cycles <count>` | Focus cycles before long break | `4` |
-| `-L, --lang <pt\|en>` | Interface language (`pt` or `en`) | `pt` |
+| `-L, --lang <pt\|en>` | Interface language (`pt` or `en`), saved for the next run | saved, or `pt` |
 | `--no-sound` | Start with sound disabled | Disabled |
 | `--test-sound` | Test procedural audio synthesizer and exit | - |
 | `--ascii` | Strict ASCII compatibility mode (7-bit chars only) | Disabled |
 | `-h, --help` | Display this help message | - |
 
-Durations changed in the `C` panel are written to `$XDG_CONFIG_HOME/pomodoro/durations`, or `~/.config/pomodoro/durations` when `XDG_CONFIG_HOME` is unset. `-w`, `-s`, and `-l` override that file for the current run and do not rewrite it.
+Durations changed in the `C` panel, and the language chosen with `-L`, are written to `$XDG_CONFIG_HOME/pomodoro/durations`, or `~/.config/pomodoro/durations` when `XDG_CONFIG_HOME` is unset. `-w`, `-s`, and `-l` override durations for the current run and do not rewrite the file.
 
 ### Usage Examples:
 ```bash

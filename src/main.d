@@ -45,7 +45,7 @@ int main(string[] args)
     loadDurations(config);
     bool noSound = false;
     bool testSound = false;
-    string langArg = "pt";
+    string langArg;
 
     try
     {
@@ -62,13 +62,18 @@ int main(string[] args)
             "ascii",         "Ativar modo ASCII estrito", &config.asciiMode
         );
 
-        config.lang = parseLanguage(langArg);
+        bool langFromCli = langArg.length > 0;
+        if (langFromCli)
+            config.lang = parseLanguage(langArg);
 
         if (helpInformation.helpWanted)
         {
             printHelp(args[0], config.lang);
             return 0;
         }
+
+        if (langFromCli)
+            saveLanguage(config.lang);
     }
     catch (Exception e)
     {

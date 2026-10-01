@@ -1,5 +1,6 @@
 module configstore;
 
+import i18n;
 import pomodoro;
 
 import std.conv : to;
@@ -23,7 +24,7 @@ string durationsPath()
     return buildPath(xdg, "pomodoro", "durations");
 }
 
-/// Fill durations from the user file. A missing or unreadable file leaves `config` unchanged.
+/// Fill durations and language from the user file. A missing or unreadable file leaves `config` unchanged.
 void loadDurations(ref PomodoroConfig config)
 {
     loadDurationsFrom(config, durationsPath());
@@ -49,7 +50,7 @@ void loadDurationsFrom(ref PomodoroConfig config, string path)
     applyDurationsText(config, text);
 }
 
-/// Write the three durations. Disk failures do not propagate.
+/// Write durations and language. Disk failures do not propagate.
 void saveDurations(PomodoroConfig config)
 {
     saveDurationsTo(config, durationsPath());
@@ -66,14 +67,43 @@ void saveDurationsTo(PomodoroConfig config, string path)
         if (dir.length > 0 && !exists(dir))
             mkdirRecurse(dir);
 
-        string body = format!"work=%g\nshort=%g\nlong=%g\n"(
+        string body = format!"work=%g\nshort=%g\nlong=%g\nlang=%s\n"(
             config.workMinutes,
             config.shortBreakMinutes,
-            config.longBreakMinutes);
+            config.longBreakMinutes,
+            languageCode(config.lang));
         write(path, body);
     }
     catch (Exception)
     {
+    }
+}
+
+/// Store `lang` without rewriting duration overrides from this run.
+void saveLanguage(Language lang)
+{
+    saveLanguageTo(durationsPath(), lang);
+}
+
+void saveLanguageTo(string path, Language lang)
+{
+    if (path.length == 0)
+        return;
+
+    PomodoroConfig stored;
+    loadDurationsFrom(stored, path);
+    stored.lang = lang;
+    saveDurationsTo(stored, path);
+}
+
+private string languageCode(Language lang)
+{
+    final switch (lang)
+    {
+        case Language.PT:
+            return "pt";
+        case Language.EN:
+            return "en";
     }
 }
 
@@ -91,6 +121,16 @@ private void applyDurationsText(ref PomodoroConfig config, string text)
 
         string key = trimmed[0 .. eq].strip();
         string value = trimmed[eq + 1 .. $].strip();
+
+        if (key == "lang")
+        {
+            try
+                config.lang = parseLanguage(value);
+            catch (Exception)
+            {
+            }
+            continue;
+        }
 
         float minutes;
         try
@@ -173,4 +213,28 @@ unittest
 
     loadDurationsFrom(loaded, buildPath(dir, "missing"));
     assert(loaded.workMinutes == 40.0f);
+    assert(loaded.lang == Language.PT);
+
+    PomodoroConfig withLang;
+    applyDurationsText(withLang, "lang=en\nwork=50\n");
+    assert(withLang.lang == Language.EN);
+    assert(withLang.workMinutes == 50.0f);
+
+    PomodoroConfig badLang;
+    applyDurationsText(badLang, "lang=es\nlang=\n");
+    assert(badLang.lang == Language.PT);
+
+    PomodoroConfig prior;
+    prior.workMinutes = 50.0f;
+    prior.shortBreakMinutes = 10.0f;
+    prior.longBreakMinutes = 30.0f;
+    saveDurationsTo(prior, path);
+
+    saveLanguageTo(path, Language.EN);
+    PomodoroConfig afterLang;
+    loadDurationsFrom(afterLang, path);
+    assert(afterLang.lang == Language.EN);
+    assert(afterLang.workMinutes == 50.0f);
+    assert(afterLang.shortBreakMinutes == 10.0f);
+    assert(afterLang.longBreakMinutes == 30.0f);
 }
