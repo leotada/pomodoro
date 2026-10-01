@@ -5,6 +5,7 @@ import std.stdio : writeln, writefln, stdout;
 import core.thread : Thread;
 import core.time : dur;
 
+import configstore;
 import pomodoro;
 import sound;
 import terminal;
@@ -41,6 +42,7 @@ void printHelp(string programName, Language lang = Language.PT)
 int main(string[] args)
 {
     PomodoroConfig config;
+    loadDurations(config);
     bool noSound = false;
     bool testSound = false;
     string langArg = "pt";
@@ -246,6 +248,7 @@ void adjustDuration(Pomodoro pomo, int field, int delta)
             pomo.setLongBreakMinutes(cfg.longBreakMinutes + delta);
             break;
         default:
-            break;
+            return;
     }
+    saveDurations(pomo.getConfig());
 }

@@ -47,7 +47,7 @@ dub build --build=release
 | **`+`** | Add 1 minute to remaining time |
 | **`-`** | Subtract 1 minute from remaining time |
 | **`M`** | Toggle Sound Alarm (Enable / Mute) |
-| **`C`** | Set work, short break, and long break durations (applies to the next phases; `R` restarts the current phase with the new time) |
+| **`C`** | Set work, short break, and long break durations (saved and restored on the next run; applies to the next phases; `R` restarts the current phase with the new time) |
 | **`Q`** or **`ESC`** | Quit program and restore terminal (`ESC` closes the duration panel when it is open) |
 
 ---
@@ -56,15 +56,17 @@ dub build --build=release
 
 | Option | Description | Default |
 | :--- | :--- | :--- |
-| `-w, --work <min>` | Focus work duration in minutes | `25` |
-| `-s, --short-break <min>` | Short break duration in minutes | `5` |
-| `-l, --long-break <min>` | Long break duration in minutes | `15` |
+| `-w, --work <min>` | Focus work duration in minutes for this run only | saved, or `25` |
+| `-s, --short-break <min>` | Short break duration in minutes for this run only | saved, or `5` |
+| `-l, --long-break <min>` | Long break duration in minutes for this run only | saved, or `15` |
 | `-c, --cycles <count>` | Focus cycles before long break | `4` |
 | `-L, --lang <pt\|en>` | Interface language (`pt` or `en`) | `pt` |
 | `--no-sound` | Start with sound disabled | Disabled |
 | `--test-sound` | Test procedural audio synthesizer and exit | - |
 | `--ascii` | Strict ASCII compatibility mode (7-bit chars only) | Disabled |
 | `-h, --help` | Display this help message | - |
+
+Durations changed in the `C` panel are written to `$XDG_CONFIG_HOME/pomodoro/durations`, or `~/.config/pomodoro/durations` when `XDG_CONFIG_HOME` is unset. `-w`, `-s`, and `-l` override that file for the current run and do not rewrite it.
 
 ### Usage Examples:
 ```bash
